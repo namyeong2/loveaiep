@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>일류 교사 도구 테스트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gowun+Batang:wght@400;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* Layout: 가운데 카드 하나(시작·질문) → 결과는 상장+공유(왼쪽) / 추천 도구(오른쪽). 스티커처럼 둥근 테두리와 아래 그림자 */
+:root{
+  --bg:#EAF5EF;
+  --surface:#FFFFFF;
+  --ink:#24322B;
+  --muted:#6B7B73;
+  --line:#CFE2D7;
+  --green:#2E7D5B;
+  --green-soft:#DDF0E5;
+  --yellow:#FFE27A;
+  --pink:#FFC9CF;
+  --sky:#BFE3FA;
+  --lilac:#DCD3FF;
+  --paper:#FFFDF6;
+  --gold:#B08A3E;
+  --seal:#D0362B;
+  --warn-bg:#FFF1D6;
+  --warn-ink:#7A4B00;
+  --font-cute:"Jua","Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --font-cert:"Gowun Batang","Nanum Myeongjo","Batang",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13201A; --surface:#1B2A23; --ink:#E8F1EC; --muted:#A3B6AC; --line:#2F453A;
+    --green:#80CDA8; --green-soft:#21392D; --yellow:#7A6420; --pink:#6E3C43; --sky:#2D5168; --lilac:#4A4170;
+    --paper:#FFFDF6; --gold:#B08A3E; --seal:#D0362B; --warn-bg:#3A2D12; --warn-ink:#F2C979; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13201A; --surface:#1B2A23; --ink:#E8F1EC; --muted:#A3B6AC; --line:#2F453A;
+  --green:#80CDA8; --green-soft:#21392D; --yellow:#7A6420; --pink:#6E3C43; --sky:#2D5168; --lilac:#4A4170;
+  --paper:#FFFDF6; --gold:#B08A3E; --seal:#D0362B; --warn-bg:#3A2D12; --warn-ink:#F2C979; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body);
+  font-size:17px; line-height:1.6; word-break:keep-all;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:24px 40px;
+}
+.wrap{max-width:1160px; margin:0 auto}
+button,input{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--green); outline-offset:3px}
+.sticker{background:var(--surface); border:2px solid var(--line); border-radius:24px; box-shadow:0 6px 0 var(--line)}
+.pop{animation:pop .35s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{from{transform:translateY(10px) scale(.98)} to{transform:none}}
+
+/* ---------- 시작 ---------- */
+.intro{position:relative; max-width:760px; margin:6vh auto 0; padding:64px 32px 56px; text-align:center; overflow:hidden}
+.intro .pill{display:inline-block; background:var(--yellow); color:var(--ink); font-family:var(--font-cute); font-size:16px; padding:5px 16px; border-radius:20px; margin-bottom:18px}
+.intro h1{font-family:var(--font-cute); font-weight:400; font-size:clamp(40px,7vw,68px); line-height:1.18; margin:0 0 34px}
+.intro h1 mark{background:linear-gradient(transparent 55%, var(--pink) 55%); color:inherit; padding:0 4px}
+.btn-start{background:var(--green); color:var(--surface); border:0; border-radius:40px; padding:16px 44px;
+  font-family:var(--font-cute); font-size:24px; cursor:pointer; box-shadow:0 5px 0 var(--ink); transition:transform .12s, box-shadow .12s}
+.btn-start:hover{transform:translateY(-2px); box-shadow:0 7px 0 var(--ink)}
+.btn-start:active{transform:translateY(4px); box-shadow:0 1px 0 var(--ink)}
+.deco{position:absolute; font-size:40px; line-height:1; pointer-events:none; animation:float 4s ease-in-out infinite}
+.deco:nth-child(2n){animation-delay:-2s}
+@keyframes float{50%{transform:translateY(-8px) rotate(6deg)}}
+
+/* ---------- 질문 ---------- */
+.quiz{max-width:860px; margin:2vh auto 0; padding:34px 36px 30px}
+.qtop{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px}
+.dots{display:flex; gap:8px}
+.dots i{width:12px; height:12px; border-radius:50%; background:var(--line)}
+.dots i.on{background:var(--green)}
+.dots i.now{background:var(--yellow); outline:2px solid var(--green)}
+.qbadge{font-family:var(--font-cute); font-size:18px; background:var(--green-soft); color:var(--green); padding:3px 14px; border-radius:20px}
+.quiz h2{font-family:var(--font-cute); font-weight:400; font-size:clamp(26px,3.4vw,36px); line-height:1.35; margin:0 0 26px; text-wrap:balance}
+.options{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px}
+.options.n3{grid-template-columns:repeat(3, minmax(0,1fr))}
+.opt{display:flex; flex-direction:column; align-items:flex-start; gap:10px; text-align:left;
+  background:var(--surface); border:2px solid var(--line); border-radius:20px; box-shadow:0 5px 0 var(--line);
+  padding:18px 20px 20px; cursor:pointer; transition:transform .12s, box-shadow .12s, border-color .12s; min-width:0}
+.opt:hover{transform:translateY(-3px); border-color:var(--green); box-shadow:0 8px 0 var(--green-soft)}
+.opt.picked{border-color:var(--green); background:var(--green-soft); transform:translateY(3px); box-shadow:0 2px 0 var(--green)}
+.opt .emo{width:54px; height:54px; border-radius:16px; display:grid; place-items:center; font-size:30px}
+.opt:nth-child(4n+1) .emo{background:var(--yellow)}
+.opt:nth-child(4n+2) .emo{background:var(--sky)}
+.opt:nth-child(4n+3) .emo{background:var(--pink)}
+.opt:nth-child(4n+4) .emo{background:var(--lilac)}
+.opt b{font-family:var(--font-cute); font-weight:400; font-size:20px; line-height:1.35}
+.opt small{font-size:15px; color:var(--muted); margin-top:-6px}
+.back{margin-top:20px; background:none; border:0; color:var(--muted); cursor:pointer; padding:4px 0; font-size:15px; text-decoration:underline; text-underline-offset:3px}
+
+/* ---------- 결과 ---------- */
+.result{display:grid; grid-template-columns:5fr 7fr; gap:26px; align-items:start}
+.left{display:flex; flex-direction:column; gap:18px; min-width:0}
+.cert{background:var(--paper); color:#2A2A22; border:1px solid var(--gold); border-radius:4px; padding:12px}
+.cert-inner{border:3px double var(--gold); padding:26px 26px 34px; font-family:var(--font-cert); text-align:center}
+.cert .no{text-align:left; font-size:12px; color:#7C7666; letter-spacing:.04em}
+.cert .title{font-size:36px; font-weight:700; letter-spacing:.6em; padding-left:.6em; margin:8px 0 0}
+.cert .award{text-align:right; font-size:15px; color:var(--gold); letter-spacing:.08em; margin:4px 0 20px}
+.cert .name{font-size:18px; margin:0 0 6px}
+.cert .name b{display:inline-block; min-width:5.5em; border-bottom:1px solid #9C9381; padding:0 6px; font-size:21px}
+.cert .typename{font-size:16px; color:#5E5A4C; margin:0 0 18px}
+.cert .typename b{color:#1F5C43; font-size:22px}
+.cert .story{font-size:17px; line-height:1.95; margin:0 0 30px}
+.cert .story strong{color:var(--seal)}
+.signrow{position:relative; display:inline-block; margin-right:70px; font-size:17px; font-weight:700; letter-spacing:.06em; padding:14px 0}
+.seal{position:absolute; left:100%; top:50%; margin:-54px 0 0 -18px; transform:rotate(-4deg);
+  width:108px; height:108px; border:4px solid var(--seal); border-radius:6px; color:var(--seal);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-cert); font-weight:700; line-height:1.25; opacity:.9;
+  animation:stamp .45s cubic-bezier(.2,1.6,.4,1) .3s backwards}
+.seal::after{content:""; position:absolute; inset:4px; border:1px solid var(--seal); border-radius:3px}
+.seal span{display:block; font-size:18px}
+.seal span.s{font-size:16px; letter-spacing:0}
+@keyframes stamp{from{transform:rotate(-4deg) scale(1.9)} to{transform:rotate(-4deg) scale(1)}}
+
+.share{padding:18px 20px}
+.share h4{font-family:var(--font-cute); font-weight:400; font-size:20px; margin:0 0 10px}
+.share .row{display:flex; gap:10px; flex-wrap:wrap}
+.share input{flex:1 1 160px; min-width:0; border:2px solid var(--line); border-radius:14px; padding:11px 14px; background:var(--surface)}
+.btn-share{background:var(--seal); color:#fff; border:0; border-radius:14px; padding:11px 18px; font-family:var(--font-cute); font-size:18px; cursor:pointer; box-shadow:0 4px 0 #8E2119}
+.btn-share:active{transform:translateY(3px); box-shadow:0 1px 0 #8E2119}
+.btn-share[disabled]{opacity:.6; cursor:wait}
+.share .msg{font-size:15px; margin:10px 0 0; color:var(--green)}
+.share .msg.err{color:var(--warn-ink)}
+.share a{color:var(--green); font-weight:700}
+
+.tool{padding:26px 28px 22px; min-width:0}
+.tool .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.label{font-size:14px; color:var(--muted)}
+.chip{font-size:13px; padding:3px 11px; border-radius:20px; background:var(--green-soft); color:var(--green); font-weight:700; white-space:nowrap}
+.chip.warn{background:var(--warn-bg); color:var(--warn-ink)}
+.tname{display:flex; align-items:center; gap:14px; margin:8px 0 12px}
+.tname .emo{width:62px; height:62px; border-radius:18px; background:var(--yellow); display:grid; place-items:center; font-size:34px; flex:none}
+.tname h3{font-family:var(--font-cute); font-weight:400; font-size:40px; margin:0; line-height:1.15}
+.ask{font-size:18px; line-height:1.75; margin:0 0 20px; background:var(--green-soft); border-radius:16px; padding:14px 18px}
+.ask q{quotes:none; font-weight:700; color:var(--green)}
+.tool h4{font-family:var(--font-cute); font-weight:400; font-size:20px; margin:0 0 10px}
+.pick{background:var(--green-soft); border-radius:18px; padding:16px 18px; margin:0 0 18px}
+.pick .tag{display:inline-block; font-size:13px; background:var(--green); color:var(--surface); padding:2px 10px; border-radius:20px; margin-bottom:6px}
+.pick b{display:block; font-family:var(--font-cute); font-weight:400; font-size:23px; line-height:1.3}
+.pick p{margin:4px 0 12px; font-size:17px}
+.pick .now{border-top:2px dashed var(--green); padding-top:10px; font-size:16px}
+.pick .now span{font-family:var(--font-cute); color:var(--green); margin-right:8px}
+.more-h{font-size:15px; color:var(--muted); margin:0 0 4px}
+.more{list-style:none; margin:0 0 14px; padding:0}
+.more li{padding:7px 0; border-bottom:1px solid var(--line); font-size:15px; color:var(--muted)}
+.more li:last-child{border-bottom:0}
+.more li b{color:var(--ink); margin-right:8px}
+.caution{font-size:15px; color:var(--warn-ink); margin:0 0 18px}
+.caution b{background:var(--warn-bg); padding:1px 9px; border-radius:10px; margin-right:6px}
+.links{display:flex; gap:10px; flex-wrap:wrap}
+.links a{text-decoration:none; padding:11px 18px; border-radius:14px; font-family:var(--font-cute); font-size:17px}
+.links a.primary{background:var(--green); color:var(--surface); box-shadow:0 4px 0 var(--ink)}
+.links a.ghost{border:2px solid var(--line); color:var(--ink); background:var(--surface)}
+.also{margin:18px 0 0; padding-top:12px; border-top:2px dashed var(--line); font-size:15px; color:var(--muted)}
+.also a{color:var(--green); font-weight:700}
+
+@media (max-width: 900px){
+  .result{grid-template-columns:1fr}
+  .options,.options.n3{grid-template-columns:1fr}
+  .seal{width:88px; height:88px; margin-top:-44px}
+  .seal span{font-size:15px} .seal span.s{font-size:13px}
+}
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main id="app"></main>
+</div>
+
+<script>
+const PADLET = "https://padlet.com/nyu5268/2026-8-aiep-s025ai2jteml6p9kkaxk";
+const SUBMIT = "https://padlet.com/nyu5268/submission-request/y5WkX4ryJw8PbmxG";
+const AIEP = "https://ai.djsch.kr/";
+const postUrl = id => `${PADLET}/wish/${id}`;
+
+function jong(w){
+  w = String(w).replace(/[^가-힣A-Za-z0-9]+$/,"");
+  const c = w[w.length-1] || "";
+  if (/[가-힣]/.test(c)) return (c.charCodeAt(0)-0xAC00)%28 !== 0;
+  if (/[0-9]/.test(c)) return "013678".includes(c);
+  return /[lmnrLMNR]/.test(c);
+}
+const eul = w => w + (jong(w) ? "을" : "를");
+
+/* ---------- 도구: 패들렛 게시물 내용 범위 안에서만 ---------- */
+const TOOLS = {
+  miri:{name:"미리캔버스", emo:"🖼️", sec:"1. 찾고", id:"4137772483", type:"계기교육 소방수",
+    feats:{
+      templ:["계기교육 템플릿","이미 올라와 있는 계기교육 자료가 많아요. 프레젠테이션 템플릿에서 키워드로 검색하고 간단히 고치면 바로 쓸 수 있어요."],
+      crown:["왕관 템플릿도 사용","AIEP 계정으로 왕관 표시(유료) 템플릿과 요소를 모두 쓸 수 있어요."],
+      ai:["miricle AI","프레젠테이션, 이미지, 동영상, 포스터, 인포그래픽을 간단한 입력으로 만들어요."]},
+    hit:"templ", tryit:"프레젠테이션 템플릿에서 다음 계기교육 키워드로 검색해 보기",
+    also:["ict","틀기만 하면 되는 영상 자료가 필요할 때"]},
+  ict:{name:"ICT콘텐츠", emo:"🎬", sec:"1. 찾고", id:"4137764754", type:"믿을 만한 영상 큐레이터",
+    feats:{
+      video:["대전에서 만든 영상","대전교수학습지원센터에서 매년 제작하는 우수한 영상 자료가 올라와 있어요."],
+      click:["클릭하면 바로 재생","클릭만 하면 바로바로 볼 수 있어요."]},
+    hit:"video", tryit:"AIEP에서 ICT콘텐츠를 열고 다음 주 수업 주제로 영상 하나 찾아보기",
+    also:["miri","영상과 함께 띄울 슬라이드가 필요할 때"]},
+  pub:{name:"교과서 출판사", emo:"📘", sec:"1. 찾고", id:"4137779213", type:"교과서 단짝",
+    feats:{
+      one:["출판사 자료실을 한곳에서","출판사 사이트를 일일이 검색해 들어갈 필요 없이 AIEP에서 한번에 확인해요."],
+      link:["기존 계정 연동","출판사별 최초 가입은 필요하지만, 이미 계정이 있으면 연동할 수 있어요."]},
+    hit:"one", tryit:"지금 쓰는 교과서 출판사 하나를 골라 연동해 보기",
+    also:["cg","교과서 내용으로 복습 게임을 하고 싶을 때"]},
+  cg:{name:"클래스게임", emo:"🎲", sec:"1. 찾고", id:"4137777860", type:"놀이 복습 설계자",
+    feats:{
+      game:["교과별 학습 게임","YBM에서 제공하는 교과별 학습 게임이에요."],
+      any:["교과서 상관없이","YBM 교과서를 쓰면 찰떡이고, 아니어도 비슷한 내용으로 활용할 수 있어요."]},
+    hit:"game", tryit:"우리 반 과목 게임 하나를 골라 직접 해 보기",
+    also:["quiz","게임 뒤에 확인 퀴즈까지 하고 싶을 때"]},
+  doo:{name:"두피디아", emo:"🔎", sec:"1. 찾고", id:"4139048707", type:"탐구 수업 내비게이터",
+    feats:{
+      easy:["아이들도 쉽게 검색","학생들도 검색하기 쉬워서 자료 조사할 때 편리해요."],
+      share:["링크 바로 공유","원하는 자료의 링크를 학생들에게 바로 공유할 수 있어요."],
+      menu:["백과사전·포토·여행기","백과사전, 포토커뮤니티, 지구촌 여행기가 있어요. 따로 제공되는 유료 기능은 없어요."]},
+    hit:"easy", tryit:"다음 조사 수업 주제를 검색해 링크 하나 복사해 보기",
+    also:["quiz","조사 결과를 Board에 모아 함께 보고 싶을 때"]},
+  canva:{name:"캔바", emo:"🎨", sec:"2. 만들고", id:"4137749108", type:"금손 크리에이터",
+    feats:{
+      pro:["교육용 PRO 바로 사용","교육용 인증 없이 바로 PRO를 써요. 프레젠테이션, 동영상, 코드(바이브코딩)까지 무엇이든 만들어요."],
+      layer:["매직 레이어","이미지 속 텍스트를 수정할 수 있어요."],
+      media:["매직 미디어","AI로 이미지를 만들 수 있어요."],
+      trans:["자동 번역","문서를 다양한 언어로 번역해요."],
+      video:["이미지로 동영상 생성","이미지가 5초 내외로 살아 움직여요."]},
+    tries:{layer:"이미지 하나를 올려 매직 레이어로 글자 고쳐 보기", media:"다음 수업 장면을 한 문장으로 써서 이미지 만들어 보기", trans:"안내문 하나를 다른 언어로 번역해 보기", video:"사진 한 장을 5초 영상으로 만들어 보기"},
+    also:["miri","처음부터 만들기 전에 템플릿부터 찾고 싶을 때"]},
+  wai:{name:"웍스AI", emo:"🤖", sec:"2. 만들고", id:"4137734535", type:"칼퇴 설계자",
+    feats:{
+      rep:["반복 업무 맡기기","다양한 반복 업무를 웍스AI에 한번 맡겨 보세요."],
+      free:["따로 구독하지 않아도","유료 AI 구독을 따로 하지 않는 분께 추천해요."]},
+    hit:"rep", note:"학교별 사용량이 정해져 있어요(매달 리셋).",
+    also:["nw","AI로 만든 문서를 학년 폴더에 모아 둘 때"]},
+  quiz:{name:"퀴즈앤", emo:"🎯", sec:"3. 공유하고", id:"4137777337", type:"교실 분위기 메이커",
+    feats:{
+      board:["Board","패들렛 유료 구독이 부담스럽다면! 학생들과 결과물을 공유하고, 메모리게임·방탈출 같은 보드로 학습을 확인해요."],
+      show:["Show","다른 사람이 만든 퀴즈도, 내가 올린 퀴즈도 쓸 수 있어요."],
+      report:["Report","퀴즈 진행 결과를 자세히 보여 주고, 엑셀로 내려받을 수 있어요."],
+      video:["Video","영상 중심의 인터랙티브 퀴즈예요. Box(학습꾸러미), Meme(짤)도 있어요."],
+      search:["처음이라면 찾아보기","'찾아보기(Search)'에서 다른 선생님이 만든 것을 공유받아 써 보세요."]},
+    tries:{board:"'찾아보기'에서 다른 선생님이 만든 보드 하나 열어 보기", show:"'찾아보기'에서 우리 반 단원 퀴즈 하나 가져오기", report:"퀴즈 하나를 골라 Report 화면이 어떻게 생겼는지 둘러보기", video:"'찾아보기'에서 Video 퀴즈 하나 열어 보기"},
+    also:["cg","퀴즈 말고 게임으로 복습하고 싶을 때"]},
+  nw:{name:"네이버웍스", emo:"🗂️", sec:"3. 공유하고", id:"4137759898", type:"학년 자료 총무",
+    feats:{
+      cap:["드라이브 500GB","드라이브 용량을 무려 500GB 제공해요."],
+      collect:["파일 요청·메일로 올리기","공유폴더에서 함께 작업하기 편한 기능이 들어 있어요."],
+      link:["공유 링크 관리","공유 링크를 관리하기가 아주 편해요."],
+      sync:["드라이브 탐색기","설치하면 내 컴퓨터 폴더처럼 쓰면서 자동으로 동기화돼요."],
+      etc:["메일·설문·주소록","드라이브 말고도 웍스의 여러 기능을 쓸 수 있어요."]},
+    tries:{cap:"드라이브에 학년 폴더 하나 만들어 보기", collect:"공유폴더에서 '파일 요청' 눌러 보기", link:"파일 하나로 공유 링크 만들어 보기", sync:"패들렛의 '드라이브 탐색기' 안내 링크 열어 보기"},
+    also:["wai","모은 자료를 정리하는 반복 업무를 맡기고 싶을 때"]},
+  jajak:{name:"자작자작", emo:"✍️", sec:"4. 기록하고", id:"4137755594", type:"피드백 장인", student:true,
+    feats:{
+      fb:["피드백·고쳐쓰기","글쓰기 수업의 괴로움, 피드백과 고쳐쓰기를 덜어 줘요."],
+      peer:["동료평가","아이들끼리 서로의 글을 읽고 평가할 수 있어요."],
+      book:["디지털 문집","아이들 글을 엮어 디지털 문집을 만들어요."],
+      stat:["분석 통계·모아보기","결과물 분석 통계와 모아보기로 누적 관리를 해요."],
+      task:["활동·글감 설정","여기서 글쓰기 과제를 만들어요."]},
+    tries:{fb:"'활동·글감 설정'에서 과제 하나 만들어 보기", peer:"'활동·글감 설정'에서 과제 하나 만들어 보기", book:"디지털 문집 메뉴가 어디 있는지 찾아보기", stat:"모아보기 화면 둘러보기"},
+    note:"자작자작 학생계정이 필요해요(AIEP 학생계정과 별도). 서면 동의를 받고 교사가 '학생관리 → 학생일괄추가'로 만드는 방식을 추천해요.",
+    also:["gc","글 말고 과제·문제 풀이도 모으고 싶을 때"]},
+  gc:{name:"구글클래스룸", emo:"🏫", sec:"4. 기록하고", id:"4137785709", type:"데이터 읽는 담임", student:true,
+    feats:{
+      read:["Read Along","스마트 읽기 과제예요(현재 영어 지원)."],
+      practice:["연습 세트","문제 풀기 과제를 낼 수 있어요."],
+      analytics:["분석","학생 과제 제출 내역, 성적 등을 분석해 데이터로 확인해요."]},
+    tries:{read:"수업 과제 만들기에서 Read Along 찾아보기", practice:"수업 과제 만들기에서 연습 세트 찾아보기", analytics:"'분석' 메뉴 둘러보기"},
+    note:"AIEP 학생계정을 발급해야 쓸 수 있어요. 일반 구글 계정과 다른 PLUS 기능이에요.",
+    also:["jajak","글쓰기 결과물을 따로 모으고 싶을 때"]},
+};
+const ALL = ["miri","ict","pub","cg","doo","canva","wai","quiz","nw","jajak","gc"];
+
+/* ---------- 질문 흐름: 영역 → 방향 → 구체 → 마음 (praise는 상장 문장) ---------- */
+const Q1 = {q:"학기말, 지금 제일 급한 고민은?", o:[
+  {e:"🔍", label:"수업 자료, 처음부터 만들 시간이 없다", sub:"잘 만든 걸 찾아서 바로 쓰고 싶다", trail:"찾기", go:"F",
+   want:"잘 만든 자료를 찾아 바로 쓰는 것", praise:"바쁜 학기말에도 수업 자료 하나 허투루 고르지 않았으며,"},
+  {e:"✂️", label:"찾아봐도 우리 반에 딱 맞는 게 없다", sub:"결국 내가 만들어야 한다", trail:"만들기", go:"M",
+   want:"필요한 걸 직접, 빠르게 만드는 것", praise:"남이 만든 것에 머물지 않고 우리 반에 맞는 것을 직접 만들려 했으며,"},
+  {e:"🤝", label:"만든 건 많은데 나누는 게 또 일이다", sub:"아이들에게, 동료에게", trail:"나누기", go:"S",
+   want:"만든 것을 쉽게 나누는 것", praise:"좋은 자료와 아이들의 결과물을 혼자 두지 않고 나누려 했으며,"},
+  {e:"📒", label:"아이들이 해낸 것들이 여기저기 흩어져 있다", sub:"공책, 학습지, 파일 속에", trail:"기록하기", go:"R",
+   want:"아이들이 해낸 것을 한곳에 모으는 것", praise:"한 해 동안 아이들이 해낸 것을 끝까지 챙기려 했으며,"},
+]};
+
+const Q2 = {
+  F:{q:"찾은 자료는 주로 누가 쓰나요?", o:[
+    {e:"🧑‍🏫", label:"내가 앞에서 보여 주는 자료", sub:"슬라이드, 영상, 교과서 자료", trail:"교사가 보여 줄 자료", go:"FT",
+     praise:"아이들 앞에 보여 줄 자료일수록 더 꼼꼼히 고르려 했고,"},
+    {e:"🙋", label:"아이들이 직접 하는 활동 자료", sub:"게임, 조사 활동", trail:"아이들이 할 활동", go:"FS",
+     praise:"선생님이 말하는 시간보다 아이들이 직접 하는 시간을 늘리려 했고,"},
+  ]},
+  M:{q:"무엇을 만들어야 하나요?", o:[
+    {e:"🖍️", label:"수업에 쓸 자료", sub:"슬라이드, 학습지, 영상, 이미지", trail:"수업 자료", go:"canva",
+     praise:"수업 자료 한 장에도 정성을 들이려 했고,"},
+    {e:"📄", label:"반복되는 업무 문서", sub:"매번 비슷한데 매번 손이 가는 것들", trail:"업무 문서", go:"wai",
+     praise:"반복되는 업무를 줄여 수업에 쓸 힘을 지키려 했고,"},
+  ]},
+  S:{q:"누구와 나누고 싶나요?", o:[
+    {e:"🧒", label:"아이들과", sub:"결과물, 퀴즈, 활동", trail:"아이들과", go:"quiz",
+     praise:"아이들과 배움을 함께 나누는 교실을 꿈꿨고,"},
+    {e:"👩‍🏫", label:"동료 선생님과", sub:"학년 자료, 취합 파일", trail:"동료와", go:"nw",
+     praise:"동료 선생님들과 자료를 나누며 함께 가려 했고,"},
+  ]},
+  R:{q:"어떤 기록을 모으고 싶나요?", o:[
+    {e:"📝", label:"아이들의 글", sub:"글쓰기, 고쳐쓰기, 문집", trail:"아이들의 글", go:"jajak",
+     praise:"아이들의 글 한 편 한 편에 귀 기울이려 했고,"},
+    {e:"✅", label:"과제 제출과 문제 풀이", sub:"누가 냈는지, 얼마나 맞혔는지", trail:"과제·문제 풀이", go:"gc",
+     praise:"과제 하나하나를 아이들의 배움 기록으로 여겼고,"},
+  ]},
+};
+
+const Q3 = {
+  FT:{q:"어떤 자료가 있으면 가장 반가울까요?", o:[
+    {e:"📅", label:"계기교육처럼 날짜가 정해진 주제의 슬라이드", trail:"계기교육 슬라이드", tool:"miri", praise:"계기교육 하나도 놓치지 않으려는 성실함을 보여 주었습니다."},
+    {e:"🎬", label:"틀기만 하면 되는 믿을 만한 영상", trail:"믿을 만한 영상", tool:"ict", praise:"아이들에게 보여 줄 영상 하나도 믿을 수 있는 것으로 고르려 했습니다."},
+    {e:"📘", label:"지금 쓰는 교과서와 딱 맞는 자료", trail:"교과서 맞춤 자료", tool:"pub", praise:"교과서와 수업이 따로 놀지 않도록 세심하게 챙겼습니다."},
+  ]},
+  FS:{q:"아이들이 어떤 활동을 하면 좋을까요?", o:[
+    {e:"🎲", label:"진도 끝난 뒤, 놀이처럼 하는 복습", trail:"놀이로 복습", tool:"cg", praise:"진도가 끝난 뒤에도 남은 시간을 배움으로 채우려 했습니다."},
+    {e:"🔎", label:"조사 활동에 쓸 믿을 만한 자료 찾기", trail:"믿을 만한 조사 자료", tool:"doo", praise:"아이들이 스스로 찾고 판단하는 힘을 기르려 했습니다."},
+  ]},
+  canva:{q:"캔바로 가장 먼저 해 보고 싶은 건?", o:[
+    {e:"🔤", label:"이미지 속 글자 고치기", trail:"이미지 속 글자 수정", feat:"layer", praise:"작은 글자 하나까지 우리 반에 맞추려는 꼼꼼함을 보여 주었습니다."},
+    {e:"🎨", label:"수업 장면에 딱 맞는 그림 만들기", trail:"AI 이미지", feat:"media", praise:"긴 설명보다 그림 한 장이 나을 때를 아는 감각을 보여 주었습니다."},
+    {e:"🌏", label:"안내문을 여러 언어로 번역하기", trail:"번역", feat:"trans", praise:"모든 가정이 소식을 놓치지 않도록 한 사람 한 사람을 챙겼습니다."},
+    {e:"📸", label:"사진 한 장을 움직이는 영상으로", need:"사진 한 장을 움직이는 영상으로 바꾸기", trail:"사진을 영상으로", feat:"video", praise:"평범한 사진 한 장도 아이들의 눈길을 끄는 자료로 바꾸려 했습니다."},
+  ]},
+  wai:{q:"AI에게 가장 먼저 맡기고 싶은 일은?", o:[
+    {e:"📨", label:"가정통신문 초안 쓰기", trail:"가정통신문 초안", feat:"rep", praise:"가정과의 소통을 소홀히 하지 않으면서도 시간을 아끼려 했습니다."},
+    {e:"🗒️", label:"회의록 정리하기", trail:"회의록 정리", feat:"rep", praise:"회의 내용을 빠짐없이 남기는 꼼꼼함을 놓지 않았습니다."},
+    {e:"📑", label:"긴 문서 요약하기", trail:"긴 문서 요약", feat:"rep", praise:"긴 문서 속에서도 핵심을 짚어 내려 했습니다."},
+    {e:"🗓️", label:"계획서 초안 잡기", trail:"계획서 초안", feat:"rep", praise:"새로운 계획도 미루지 않고 시작하려 했습니다."},
+  ]},
+  quiz:{q:"아이들과 무엇을 나누고 싶나요?", o:[
+    {e:"📌", label:"아이들 결과물을 한 보드에 모으기", trail:"결과물 보드", feat:"board", praise:"아이들 한 명 한 명의 결과물이 모두 빛날 자리를 만들어 주었습니다."},
+    {e:"❓", label:"수업 끝에 확인 퀴즈", trail:"확인 퀴즈", feat:"show", praise:"배운 것을 그날 바로 확인하는 꼼꼼함을 보여 주었습니다."},
+    {e:"📊", label:"퀴즈 결과를 데이터로 받아 보기", trail:"결과 데이터", feat:"report", praise:"누가 어디서 막혔는지 살피려는 세심함을 보여 주었습니다."},
+    {e:"▶️", label:"영상을 보며 푸는 퀴즈", trail:"영상 퀴즈", feat:"video", praise:"영상을 보는 시간도 생각하는 시간으로 바꾸려 했습니다."},
+  ]},
+  nw:{q:"자료를 나눌 때 가장 답답한 건?", o:[
+    {e:"💾", label:"용량이 늘 모자라다", need:"넉넉한 드라이브 용량", trail:"넉넉한 용량", feat:"cap", praise:"한 해 동안 쌓인 자료를 하나도 버리지 않고 지켰습니다."},
+    {e:"📥", label:"자료 취합을 일일이 받아야 한다", need:"편한 자료 취합", trail:"자료 취합", feat:"collect", praise:"동료의 자료를 모으는 수고를 기꺼이 맡았습니다."},
+    {e:"🔗", label:"공유 링크가 여기저기 흩어진다", need:"한곳에서 하는 링크 관리", trail:"링크 관리", feat:"link", praise:"모두가 같은 자료를 볼 수 있도록 길을 정리하려 했습니다."},
+    {e:"🔄", label:"올리고 내려받기가 번거롭다", need:"자동 동기화", trail:"자동 동기화", feat:"sync", praise:"작은 번거로움까지 줄여 동료의 시간을 아끼려 했습니다."},
+  ]},
+  jajak:{q:"글쓰기 수업에서 가장 힘든 건?", o:[
+    {e:"💬", label:"한 명 한 명 피드백하기", trail:"피드백", feat:"fb", praise:"글 한 편마다 따뜻한 한마디를 남기려 했습니다."},
+    {e:"👥", label:"아이들끼리 서로 읽고 평가하기", trail:"동료평가", feat:"peer", praise:"아이들이 서로의 글에서 배우는 교실을 만들려 했습니다."},
+    {e:"📚", label:"한 해 글을 모아 문집 만들기", trail:"문집", feat:"book", praise:"아이들의 한 해를 한 권의 책으로 남겨 주려 했습니다."},
+    {e:"📈", label:"누가 얼마나 썼는지 파악하기", trail:"누적 관리", feat:"stat", praise:"한 명도 놓치지 않도록 살피려 했습니다."},
+  ]},
+  gc:{q:"구글클래스룸으로 해 보고 싶은 건?", o:[
+    {e:"📖", label:"영어 읽기 과제", trail:"읽기 과제", feat:"read", praise:"아이들이 스스로 읽는 힘을 기르도록 도우려 했습니다."},
+    {e:"✏️", label:"문제 풀기 과제", trail:"문제 풀기", feat:"practice", praise:"배운 것을 스스로 연습할 기회를 주려 했습니다."},
+    {e:"📊", label:"제출 내역과 성적을 한눈에 보기", trail:"데이터 확인", feat:"analytics", praise:"기록 속에서 아이들의 배움을 읽어 내려 했습니다."},
+  ]},
+};
+
+const Q4 = {q:"이 모든 고민 끝에, 결국 바라는 건?", o:[
+  {e:"☕", label:"아낀 시간만큼 아이들과 눈 맞추는 여유", trail:"아이들과 눈 맞출 여유", want:"아이들과 눈 맞출 여유", praise:"무엇보다 아낀 시간을 다시 아이들에게 돌려주려는 마음이 빛났습니다."},
+  {e:"🤩", label:"아이들의 \"와!\" 하는 반응", trail:"아이들의 \"와!\"", want:"아이들의 \"와!\"", praise:"무엇보다 아이들의 \"와!\"를 먼저 떠올리는 마음이 빛났습니다."},
+  {e:"🌟", label:"수업이 끝나고 스스로 뿌듯한 한 시간", trail:"뿌듯한 수업", want:"스스로 뿌듯한 수업 한 시간", praise:"무엇보다 어제보다 나은 수업을 바라는 마음이 빛났습니다."},
+  {e:"🌱", label:"아이들이 자라는 게 눈에 보이는 것", trail:"눈에 보이는 성장", want:"눈에 보이는 아이들의 성장", praise:"무엇보다 아이들의 성장을 끝까지 지켜보려는 마음이 빛났습니다."},
+]};
+
+/* ---------- 화면 ---------- */
+const app = document.getElementById("app");
+let picks = [];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function stepQuestion(i){
+  if (i===0) return Q1;
+  if (i===1) return Q2[picks[0].opt.go];
+  if (i===2) return Q3[picks[1].opt.go];
+  return Q4;
+}
+function toolKey(){
+  const o3 = picks[2] && picks[2].opt;
+  return (o3 && o3.tool) ? o3.tool : picks[1].opt.go;
+}
+
+function renderIntro(){
+  picks = [];
+  const deco = [["📚","8%","14%"],["✏️","84%","10%"],["🎨","6%","70%"],["🎯","88%","66%"],["⭐","20%","88%"],["💬","74%","86%"],["🏫","4%","40%"]];
+  app.innerHTML = `
+  <section class="intro sticker pop">
+    ${deco.map(([e,l,t])=>`<span class="deco" aria-hidden="true" style="left:${l};top:${t}">${e}</span>`).join("")}
+    <span class="pill">교사용 심리테스트</span>
+    <h1>나에게 딱 맞는<br><mark>도구</mark>는 뭘까?</h1>
+    <button class="btn-start" id="start">시작하기 →</button>
+  </section>`;
+  document.getElementById("start").onclick = () => renderQ(0);
+}
+
+function renderQ(i){
+  picks = picks.slice(0,i);
+  const Q = stepQuestion(i);
+  app.innerHTML = `
+  <section class="quiz sticker pop">
+    <div class="qtop">
+      <div class="dots" aria-label="${i+1}/4">${[0,1,2,3].map(k=>`<i class="${k<i?'on':k===i?'now':''}"></i>`).join("")}</div>
+      <span class="qbadge">Q${i+1}</span>
+    </div>
+    <h2>${esc(Q.q)}</h2>
+    <div class="options${Q.o.length===3?' n3':''}" role="group" aria-label="선택지">
+      ${Q.o.map((o,j)=>`<button class="opt" data-j="${j}"><span class="emo" aria-hidden="true">${o.e}</span><b>${esc(o.label)}</b>${o.sub?`<small>${esc(o.sub)}</small>`:""}</button>`).join("")}
+    </div>
+    ${i>0 ? `<button class="back" id="back">이전 질문으로</button>` : ""}
+  </section>`;
+  app.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    b.classList.add("picked");
+    picks[i] = {q:Q, opt:Q.o[+b.dataset.j]};
+    setTimeout(() => i<3 ? renderQ(i+1) : renderResult(), 260);
+  });
+  const back = document.getElementById("back");
+  if (back) back.onclick = () => renderQ(i-1);
+  window.scrollTo({top:0});
+}
+
+function renderResult(){
+  const [p1,p2,p3,p4] = picks.map(p=>p.opt);
+  const tk = toolKey(), T = TOOLS[tk];
+  const featKey = p3.feat || T.hit;
+  const tryit = tk==="wai" ? `'${p3.trail}'${jong(p3.trail)?"을":"를"} 웍스AI에 맡겨 보기` : (T.tries && T.tries[featKey]) || T.tryit;
+  const rest = Object.keys(T.feats).filter(k=>k!==featKey);
+  const no = String(ALL.indexOf(tk)+1).padStart(2,"0");
+  const A = TOOLS[T.also[0]];
+  const need = p3.need || p3.label;
+
+  const story = `위 선생님은 ${p1.praise} ${p2.praise} ${p3.praise} ${p4.praise} 바쁜 학기말에도 AIEP로 더 좋은 수업을 연구하는 선생님은 이미 <strong>일류</strong>이기에 이 상장을 드립니다.`;
+  const ask = `선생님은 <q>${esc(p1.want)}</q>${jong(p1.want)?"을":"를"} 원하시죠? 그중에서도 <q>${esc(need)}</q>${jong(need)?"이":"가"} 필요하고, 결국 바라는 건 <q>${esc(p4.want)}</q>${jong(p4.want)?"이죠":"죠"}. 그래서 이 도구를 골랐어요.`;
+
+  app.innerHTML = `
+  <section class="result pop">
+    <div class="left">
+      <article class="cert" id="cert" aria-label="상장">
+        <div class="cert-inner">
+          <div class="no">제 2026-AIEP-${no}호</div>
+          <div class="title">상장</div>
+          <div class="award">학기말 일류 교사상</div>
+          <p class="name">성명 <b id="certName">&nbsp;</b> 선생님</p>
+          <p class="typename">유형 · <b>${esc(T.type)}</b></p>
+          <p class="story">${story}</p>
+          <div class="signrow">2026 대전미래교육박람회
+            <div class="seal" aria-hidden="true"><span>최고의</span><span>교사로</span><span class="s">인정합니다</span></div>
+          </div>
+        </div>
+      </article>
+
+      <div class="share sticker">
+        <h4>📤 결과 공유하기</h4>
+        <div class="row">
+          <input id="nm" type="text" maxlength="12" placeholder="이름을 쓰면 상장에 들어가요" autocomplete="off">
+          <button class="btn-share" id="shareBtn">복사하고 패들렛 열기</button>
+        </div>
+        <p class="msg" id="shareMsg" hidden></p>
+      </div>
+    </div>
+
+    <article class="tool sticker">
+      <div class="row">
+        <span class="label">선생님 맞춤 추천 도구</span>
+        <span class="chip">패들렛 ${T.sec}</span>
+        ${T.student?'<span class="chip warn">학생계정 필요</span>':''}
+      </div>
+      <div class="tname"><span class="emo" aria-hidden="true">${T.emo}</span><h3>${T.name}</h3></div>
+      <p class="ask">${ask}</p>
+      <h4>${eul(T.name)} 이렇게 써 보세요</h4>
+      <div class="pick">
+        <span class="tag">선생님께 딱 맞는 기능</span>
+        <b>${esc(T.feats[featKey][0])}</b>
+        <p>${esc(T.feats[featKey][1])}</p>
+        <div class="now"><span>지금 부스에서 해 보기</span>${esc(tryit)}</div>
+      </div>
+      <p class="more-h">이런 기능도 있어요</p>
+      <ul class="more">${rest.map(k=>`<li><b>${esc(T.feats[k][0])}</b>${esc(T.feats[k][1])}</li>`).join("")}</ul>
+      ${T.note?`<p class="caution"><b>유의</b>${esc(T.note)}</p>`:""}
+      <div class="links">
+        <a class="primary" href="${AIEP}" target="_blank" rel="noopener">AIEP 열기</a>
+        <a class="ghost" href="${postUrl(T.id)}" target="_blank" rel="noopener">패들렛에서 ${esc(T.name)} 보기</a>
+      </div>
+      <p class="also">함께 보면 좋은 도구 · <a href="${postUrl(A.id)}" target="_blank" rel="noopener">${esc(A.name)}</a> — ${esc(T.also[1])}${A.student?' (학생계정 필요)':''}</p>
+    </article>
+  </section>`;
+
+  const nm = document.getElementById("nm");
+  const certName = document.getElementById("certName");
+  nm.addEventListener("input", () => { certName.textContent = nm.value.trim() || " "; });
+  document.getElementById("shareBtn").onclick = () => share(nm.value.trim());
+  window.scrollTo({top:0});
+}
+
+/* ---------- 공유: 상장 이미지를 클립보드에 복사 → 패들렛 제출 링크 열기 ---------- */
+function certBlob(){
+  if (!window.html2canvas) return Promise.reject(new Error("no html2canvas"));
+  const node = document.querySelector(".result");
+  const bg = getComputedStyle(document.body).backgroundColor;
+  return document.fonts.ready
+    .then(() => html2canvas(node, {scale:2, backgroundColor:bg, windowWidth:1400, onclone: doc => { const st = doc.createElement("style"); st.textContent = "*{animation:none !important; transition:none !important} .result{width:1160px !important; grid-template-columns:5fr 7fr !important; padding:28px} .share,.links{display:none !important}"; doc.head.appendChild(st); }}))
+    .then(c => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("toBlob")), "image/png")));
+}
+function say(text, err){
+  const m = document.getElementById("shareMsg");
+  m.hidden = false; m.className = "msg" + (err ? " err" : ""); m.innerHTML = text;
+}
+async function share(name){
+  const btn = document.getElementById("shareBtn");
+  btn.disabled = true; btn.textContent = "만드는 중…";
+  const link = `<a href="${SUBMIT}" target="_blank" rel="noopener">패들렛 열기</a>`;
+  let copied = false;
+  try {
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+      await navigator.clipboard.write([new ClipboardItem({"image/png": certBlob()})]);
+      copied = true;
+    }
+  } catch (e) { copied = false; }
+
+  if (copied) {
+    say(`결과를 이미지로 복사했어요! 열린 패들렛에서 <b>Ctrl+V</b>로 붙여 넣고 이름을 적어 올려 주세요. 창이 안 열렸다면 ${link}`);
+  } else {
+    try {
+      const blob = await certBlob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `일류교사테스트_${name || "선생님"}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      say(`결과 이미지를 내려받았어요. 패들렛에서 이 파일을 첨부해 올려 주세요. ${link}`);
+    } catch (e) {
+      say(`상장 이미지를 만들지 못했어요. 화면을 캡처해서 올려 주세요. ${link}`, true);
+    }
+  }
+  window.open(SUBMIT, "_blank", "noopener");
+  btn.disabled = false; btn.textContent = "다시 복사하기";
+}
+
+renderIntro();
+</script>
+</body>
+</html>
